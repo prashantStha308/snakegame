@@ -4,3 +4,7 @@ body{
     align-items: center;
     min-height: 100vh;
 }
+
+.text{
+    background-color: rgb(189, 40, 65);
+}
