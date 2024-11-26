@@ -1,8 +1,13 @@
+const userScore = document.getElementById('score');
+
+// Snake canvas
 const canvas = document.getElementById("gameCanvas");
 canvas.style.backgroundColor = "rgb(240, 155, 155)";
 canvas.style.position = 'relative';
+canvas.style.borderRadius = 7 + 'px';
 const context = canvas.getContext("2d");
 
+// Power Spawner
 const powerCanvas = document.createElement('canvas');
 powerCanvas.style.position = 'absolute';
 powerCanvas.style.top = canvas.offsetTop + 'px';
@@ -10,22 +15,38 @@ powerCanvas.style.left = canvas.offsetLeft + 'px';
 powerCanvas.height = 300;
 powerCanvas.width = 300;
 powerCanvas.style.backgroundColor = "rgba(0,0,0,0)";
-
-document.body.appendChild(powerCanvas)
-
+document.body.appendChild(powerCanvas);
 const powerContext = powerCanvas.getContext("2d");
 
-let rect = [ { x: 150 , y : 150 },
-        {x:150 , y: 160 },
-        { x:150 , y: 170 },
-        { x:150 , y: 180 }
-    ];
+// Game Over Screen
+const gameOverCanvas = document.createElement('canvas');
+gameOverCanvas.style.position = 'absolute';
+gameOverCanvas.style.top = canvas.offsetTop + 'px';
+gameOverCanvas.style.left = canvas.offsetLeft + 'px';
+gameOverCanvas.height = 300;
+gameOverCanvas.width = 300;
+gameOverCanvas.style.backgroundColor = "rgba(0,0,0,0)";
+document.body.appendChild(gameOverCanvas);
+const goCtx = gameOverCanvas.getContext("2d");
 
-const power = [{
+// snake object
+let rect = [{x: 150, y: 150},
+    {x: 140, y: 150},
+    {x: 130, y: 150},
+    {x: 120, y: 150},
+    {x: 110, y: 150}
+];
+
+// variable to store user's score
+let score = 0;
+
+// initial power's position
+let power = [{
     pos: { x: 20 , y: 90 },
     isEated: false
 }];
 
+// object to keep track of movements
 let moveDir = {
     up: false,
     down: false,
@@ -33,8 +54,14 @@ let moveDir = {
     left: false
 }
 
+// direction x and direction y
 let dx = 10;
 let dy = 10;
+
+// interval Id of the setInterval() that is used to move the snake
+let intervalID;
+// interval Id of setInterval() that spawns power
+let powerInterval;
 
 const resetDirY = ()=>{
     moveDir.down = false;
@@ -46,10 +73,60 @@ const resetDirX = ()=>{
     moveDir.left = false;
 }
 
+function drawGameOver() {
+    // Clear the canvas
+    goCtx.clearRect( 0, 0, gameOverCanvas.width , gameOverCanvas.height );
 
-function collision(){
-    console.log('collision detected')
-    power[0].isEated = true;
+    // Set text properties
+    goCtx.fillStyle = 'rgb(189, 40, 65)'; // Text color
+    goCtx.font = 'bold 30px Arial'; // Font size and family
+    goCtx.textAlign = 'center'; // Center the text
+    goCtx.textBaseline = 'middle'; // Middle alignment
+
+    // Draw the text in the center of the canvas
+    goCtx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+}
+
+function gameOver(){
+    console.log('Game Over');
+    drawGameOver();
+    clearInterval(intervalID);
+    clearInterval(powerInterval)
+
+    // Set all direction to be true, so that snake stops
+    moveDir.down = true;
+    moveDir.up = true;
+    moveDir.right = true;
+    moveDir.left = true;
+}
+
+function snakeCollision(){
+    console.log("Snake collided")
+    clearInterval(intervalID);
+    gameOver();
+}
+
+function findSnakeCollision() {
+    const head = rect[0]; // Assuming rect is the array of snake segments
+
+    console.log("Head position:", head);
+    
+    for (let i = 1; i < rect.length; i++) {
+        const segment = rect[i];
+        
+        console.log("Checking segment position:", segment);
+
+        if (
+            head.x < segment.x + 10 &&
+            head.x + 10 > segment.x &&
+            head.y < segment.y + 10 &&
+            head.y + 10 > segment.y
+        ) {
+            console.log("Collision detected with segment:", segment);
+            snakeCollision();
+            break; // Exit loop on collision
+        }
+    }
 }
 
 function drawNewPower(newPower){
@@ -61,6 +138,8 @@ function drawNewPower(newPower){
     powerContext.strokeRect( newPower.pos.x , newPower.pos.y , 10 , 10 );
 }
 
+const generateRandomSpawnVertices = ()=>( Math.random() * (300 - 10) );
+
 function drawPower(){
     powerContext.clearRect(0, 0, powerCanvas.width, powerCanvas.height);
     // if power is not yet eaten, return
@@ -69,13 +148,24 @@ function drawPower(){
         return
     }
 
+    // generate random spaw point
+    const posX = generateRandomSpawnVertices();
+    const posY = generateRandomSpawnVertices();
+
+    // make sure the spawn points are not on top of the snake
+    rect.forEach( item => {
+        if( item.x === posX ) posX = generateRandomSpawnVertices();
+
+        if( item.y === posY ) posY = generateRandomSpawnVertices();
+    } )
+
     const newPower = {
-        pos: { x: Math.random() * (300 - 10), y: Math.random() * (300 - 10) },
+        pos: { x: posX, y: posY },
         isEated: false
     };
     // replace the head with the newPower
     power[0] = newPower
-
+    // Draw the new power's position
     drawNewPower(newPower)
 }
 
@@ -88,6 +178,7 @@ function drawNewRect( newRect ){
 
 function drawRect(){
     rect.forEach(drawNewRect);
+    findSnakeCollision();
 }
 
 function moveRectRight(){
@@ -170,11 +261,31 @@ function moveRectUp(){
     drawRect();
 }
 
-let powerInterval;
+const updateSize  = ()=>{
+    console.log('Updating Size');
+    let newRect = { x: rect[rect.length - 1].x + dx , y: rect[rect.length-1].y + dy };
+    rect.push(newRect);
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawRect();
+}
+
+const updateScore = () =>{
+    score++;
+    userScore.textContent = score;
+}
+
+function collision(){
+    console.log('collision detected')
+    power[0].isEated = true;
+    updateScore();
+    updateSize();
+}
+
 const createPower = ()=>{
     powerInterval = setInterval( ()=>{
         drawPower();
-
+        // The first object is the head of the snake
         head = rect[0];
         if (
             head.x < power[0].pos.x + 10 &&
@@ -194,12 +305,18 @@ function gameLoop(){
 
 gameLoop();
 
-let intervalID;
+let clickCount = 0;
+let makeMoveLeftPossible = false;
 
 document.addEventListener('keydown', function(event){
 
-    if( event.key === 'w'){
+    if( clickCount === 1 ){
+        makeMoveLeftPossible = true;
+    }
 
+    // Up
+    if( event.key === 'w'){
+        clickCount++;
         if( moveDir.down ){
             return
         }
@@ -217,7 +334,10 @@ document.addEventListener('keydown', function(event){
         // start an interval to move the rect up
         intervalID = setInterval( moveRectUp , 50 );
 
-    }else if( event.key === 'd'){
+    }
+    // Right
+    else if( event.key === 'd'){
+        clickCount++;
 
         if( moveDir.left ){
             return
@@ -236,9 +356,14 @@ document.addEventListener('keydown', function(event){
         // start an interval to move the rect side
         intervalID = setInterval( moveRectRight , 50 );
 
-    }else if( event.key === 'a'){
+    }
+    // Left
+    else if( event.key === 'a'){
 
         if( moveDir.right ){
+            return
+        }
+        if( !makeMoveLeftPossible ){
             return
         }
         // if the rect is moving, stop it
@@ -255,7 +380,10 @@ document.addEventListener('keydown', function(event){
         // start an interval to move the rect side
         intervalID = setInterval( moveRectLeft , 50 );
 
-    }else if( event.key === 's'){
+    }
+    // Down
+    else if( event.key === 's'){
+        clickCount++;
 
         if( moveDir.up ){
             return
@@ -277,3 +405,44 @@ document.addEventListener('keydown', function(event){
     }
 
 });
+
+function stop(){
+    clearInterval(intervalID);
+}
+
+function reset(){
+    console.log("REsetting")
+
+    goCtx.clearRect( 0, 0, gameOverCanvas.width , gameOverCanvas.height );
+    powerContext.clearRect(0, 0, powerCanvas.width, powerCanvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Reset the snake
+    rect = [{x: 150, y: 150},
+        {x: 140, y: 150},
+        {x: 130, y: 150},
+        {x: 120, y: 150},
+        {x: 110, y: 150}
+    ];
+
+    // reset the power spawn
+    power = [{
+        pos: { x: 20 , y: 90 },
+        isEated: false
+    }];
+    // reset all directions
+    resetDirX();
+    resetDirY();
+
+    if(intervalID) clearInterval(intervalID);
+    
+    if(powerInterval) clearInterval(powerInterval);
+
+    makeMoveLeftPossible = false;
+    clickCount = 0;
+    score = 0;
+    
+    userScore.textContent = score;
+
+    gameLoop();
+}

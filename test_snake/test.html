@@ -8,7 +8,22 @@
 </head>
 <body>
 
-    <canvas id="gameCanvas" height="300px" width="300px" >  </canvas>
+    <div id="app">
+        <!-- Score Board -->
+        <div class="score-board">
+            <h2 class="score-title"> SCORE </h2>
+            <p id="score"> 0 </p>
+        </div>
+
+        <canvas id="gameCanvas" height="300px" width="300px" ></canvas>
+    </div>
+    <button onclick="stop()" style="padding: 25px; background-color: rgb(208, 23, 23); color: white; position: fixed; left: 4rem; bottom: 4rem; border: none; border-radius: 100%;user-select: none;">
+        Staaapppp
+    </button>
+
+    <button id="resetBtn" onclick="reset()" style="padding: 25px; background-color: rgb(22, 114, 92); color: white; position: fixed; left: 16rem; bottom: 4rem; border: none; border-radius: 100%; user-select: none;">
+        Reset
+    </button>
 
     <script src="./test.js"></script>
     

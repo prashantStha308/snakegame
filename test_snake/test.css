@@ -1,10 +1,36 @@
 body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    background-color: rgb(238, 238, 238);
 }
 
-.text{
-    background-color: rgb(189, 40, 65);
+#app{
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    min-height: 100dvh;
+}
+
+#gameCanvas{
+    grid-row: 2;
+    position: relative;
+}
+
+.score-board{
+    padding: 7px;
+    border: 2px solid rgb(200, 49, 95);
+    border-radius: 7px;
+    background-color: rgb(240, 155, 155);
+    grid-row: 1;
+    color: rgb(136, 4, 112);
+}
+
+.score-title{
+    text-align: center;
+    margin: 0;
+}
+#score{
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
