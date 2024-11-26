@@ -1,4 +1,5 @@
 const userScore = document.getElementById('score');
+const highScore = document.getElementById('highScore');
 
 // Snake canvas
 const canvas = document.getElementById("gameCanvas");
@@ -101,20 +102,15 @@ function gameOver(){
 }
 
 function snakeCollision(){
-    console.log("Snake collided")
     clearInterval(intervalID);
     gameOver();
 }
 
 function findSnakeCollision() {
     const head = rect[0]; // Assuming rect is the array of snake segments
-
-    console.log("Head position:", head);
     
     for (let i = 1; i < rect.length; i++) {
         const segment = rect[i];
-        
-        console.log("Checking segment position:", segment);
 
         if (
             head.x < segment.x + 10 &&
@@ -122,7 +118,6 @@ function findSnakeCollision() {
             head.y < segment.y + 10 &&
             head.y + 10 > segment.y
         ) {
-            console.log("Collision detected with segment:", segment);
             snakeCollision();
             break; // Exit loop on collision
         }
@@ -130,7 +125,6 @@ function findSnakeCollision() {
 }
 
 function drawNewPower(newPower){
-    console.log('Drawing new Power')
     
     powerContext.fillStyle = 'rgb(189, 40, 65)';
     powerContext.strokeStyle = 'rgb(189, 40, 65)';
@@ -182,7 +176,6 @@ function drawRect(){
 }
 
 function moveRectRight(){
-    console.log('moving right');
 
     let newRect = { x: rect[0].x + dx , y: rect[0].y };
 
@@ -196,14 +189,11 @@ function moveRectRight(){
     rect.unshift(newRect);
     rect.pop();
 
-    console.log(newRect.x)
-
     context.clearRect(0, 0, canvas.width, canvas.height);
     drawRect();
 }
 
 function moveRectLeft(){
-    console.log('Moving Left');
 
     let newRect = { x: rect[0].x - dx , y: rect[0].y };
 
@@ -216,14 +206,11 @@ function moveRectLeft(){
     rect.unshift(newRect);
     rect.pop();
 
-    console.log(newRect.x)
-
     context.clearRect(0 , 0 , canvas.width, canvas.height);
     drawRect();
 }
 
 function moveRectDown(){
-    console.log('Moving Down');
 
     let newRect = { x: rect[0].x , y: rect[0].y + dy };
 
@@ -243,7 +230,6 @@ function moveRectDown(){
 }
 
 function moveRectUp(){
-    console.log('moving up');
 
     let newRect = { x: rect[0].x , y: rect[0].y - dy };
 
@@ -262,7 +248,6 @@ function moveRectUp(){
 }
 
 const updateSize  = ()=>{
-    console.log('Updating Size');
     let newRect = { x: rect[rect.length - 1].x + dx , y: rect[rect.length-1].y + dy };
     rect.push(newRect);
 
@@ -273,10 +258,20 @@ const updateSize  = ()=>{
 const updateScore = () =>{
     score++;
     userScore.textContent = score;
+
+    const savedHighScore = localStorage.getItem('highScore');
+    const savedHighScoreValue = savedHighScore !== null ? parseInt(savedHighScore,10) : 0
+
+    if( score > savedHighScoreValue ){
+        localStorage.setItem('highScore',score);
+        highScore.textContent = score;
+    }else{
+        highScore.textContent = savedHighScoreValue;
+    }
+
 }
 
 function collision(){
-    console.log('collision detected')
     power[0].isEated = true;
     updateScore();
     updateSize();
@@ -315,14 +310,13 @@ document.addEventListener('keydown', function(event){
     }
 
     // Up
-    if( event.key === 'w'){
+    if( event.key === 'w' || event.key === 'W' || event.key === 'ArrowUp'){
         clickCount++;
         if( moveDir.down ){
             return
         }
         // if the rect is moving, stop it
         if( intervalID ){
-            console.log('clearing interval: ', intervalID);
             clearInterval(intervalID)
         }
 
@@ -336,7 +330,7 @@ document.addEventListener('keydown', function(event){
 
     }
     // Right
-    else if( event.key === 'd'){
+    else if( event.key === 'd' || event.key === 'D' || event.key === 'ArrowRight' ){
         clickCount++;
 
         if( moveDir.left ){
@@ -344,7 +338,6 @@ document.addEventListener('keydown', function(event){
         }
         // if the rect is moving, stop it
         if( intervalID ){
-            console.log('clearing interval: ', intervalID);
             clearInterval(intervalID)
         }
 
@@ -358,7 +351,7 @@ document.addEventListener('keydown', function(event){
 
     }
     // Left
-    else if( event.key === 'a'){
+    else if( event.key === 'a' || event.key === 'A' || event.key === 'ArrowLeft'){
 
         if( moveDir.right ){
             return
@@ -368,7 +361,6 @@ document.addEventListener('keydown', function(event){
         }
         // if the rect is moving, stop it
         if( intervalID ){
-            console.log('clearing interval: ', intervalID);
             clearInterval(intervalID)
         }
 
@@ -382,7 +374,7 @@ document.addEventListener('keydown', function(event){
 
     }
     // Down
-    else if( event.key === 's'){
+    else if( event.key === 's' || event.key === 'S' || event.key === 'ArrowDown'){
         clickCount++;
 
         if( moveDir.up ){
@@ -390,7 +382,6 @@ document.addEventListener('keydown', function(event){
         }
         // if the rect is moving, stop it
         if( intervalID ){
-            console.log('clearing interval: ', intervalID);
             clearInterval(intervalID)
         }
 
@@ -406,12 +397,11 @@ document.addEventListener('keydown', function(event){
 
 });
 
-function stop(){
-    clearInterval(intervalID);
-}
+const stop = ()=>{
+    clearInterval(intervalID)
+};
 
 function reset(){
-    console.log("REsetting")
 
     goCtx.clearRect( 0, 0, gameOverCanvas.width , gameOverCanvas.height );
     powerContext.clearRect(0, 0, powerCanvas.width, powerCanvas.height);
@@ -446,3 +436,8 @@ function reset(){
 
     gameLoop();
 }
+
+document.addEventListener('DOMContentLoaded',()=>{
+    const highScoreValue = localStorage.getItem('highScore');
+    highScore.textContent =  highScoreValue !== null ? highScoreValue : 0;
+})
