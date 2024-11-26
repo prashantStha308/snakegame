@@ -1,8 +1,69 @@
 body{
-    display: flex;
+    background-color: rgb(238, 238, 238);
+}
+
+#app{
+    display: grid;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 0;
-    margin: 0;
+    gap: 0;
+    min-height: 100dvh;
+}
+
+#gameCanvas{
+    grid-row: 3;
+    position: relative;
+    margin: -4rem 0 0 0 ;
+}
+#btn-group{
+    grid-row: 2;
+    margin: -4rem 0 0 0;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.game-btns{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 7px;
+    color: rgb(250, 238, 238);
+    transition: all 0.15s ease-in-out;
+}
+
+.reset{
+    background-color: rgb(161, 123, 161);
+}
+.reset:hover{
+    background-color: rgb(140, 98, 140);
+    color: rgb(250, 228, 228);
+}
+
+.pause{
+    background-color: rgb(203, 51, 91);
+}
+.pause:hover{
+    background-color: rgb(181, 32, 72);
+    color: rgb(250, 228, 228);
+}
+
+.score-board{
+    padding: 7px;
+    border: 2px solid rgb(200, 49, 95);
+    border-radius: 7px;
+    background-color: rgb(240, 155, 155);
+    grid-row: 1;
+    color: rgb(136, 4, 112);
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.score-title{
+    text-align: center;
+}
+.score{
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
