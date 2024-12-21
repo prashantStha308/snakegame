@@ -44,7 +44,7 @@ let score = 0;
 // initial power's position
 let power = [{
     pos: { x: 20 , y: 90 },
-    isEated: false
+    isEaten: false
 }];
 
 // object to keep track of movements
@@ -88,7 +88,7 @@ function drawGameOver() {
     goCtx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
 
     goCtx.font = 'bold 18px Arial'; // Update Font size
-    goCtx.fillText('Press Spacebar to reset', canvas.width / 2, ( canvas.height / 2 ) + 20 );
+    goCtx.fillText('Press Enter to reset', canvas.width / 2, ( canvas.height / 2 ) + 20 );
 }
 
 function gameOver() {
@@ -105,7 +105,7 @@ function gameOver() {
 
     const handleKeyDown = (e) => {
         // on clicking spacebar
-        if (e.code === 'Space') {
+        if (e.code === 'Enter') {
             reset();
             document.removeEventListener('keydown', handleKeyDown);
         }
@@ -145,33 +145,55 @@ function drawNewPower(newPower){
     powerContext.strokeRect( newPower.pos.x , newPower.pos.y , 10 , 10 );
 }
 
+const powerPositionFlag = []; //Array to store if power has spawned on top of snake
+
 // Generate spawn points for power randomly
 const generateRandomSpawnVertices = ()=>( Math.random() * (300 - 10) );
+
+function checkPowerVertices( posX , posY ){
+    powerPositionFlag.length = 0;
+
+    rect.forEach( item => {
+        if( item.x === posX && item.y === posY ){
+            powerPositionFlag.push({ posX: false , posY: false });
+        }else if( item.x === posX ){
+            powerPositionFlag.push({ posX: false , posY: true });
+        }else  if( item.y === posY ){
+            powerPositionFlag.push({ posX: true , posY: false });
+        }else{
+            powerPositionFlag.push({ posX: true , posY: true });
+        }   
+    } )
+}
 
 function drawPower(){
     powerContext.clearRect(0, 0, powerCanvas.width, powerCanvas.height);
     // if power is not yet eaten, return
-    if( !power[0].isEated ){
+    if( !power[0].isEaten ){
         drawNewPower(power[0]);
         return
     }
 
-    // generate random spaw point
-    const posX = generateRandomSpawnVertices();
-    const posY = generateRandomSpawnVertices();
+    let posX = generateRandomSpawnVertices() + 10;
+    let posY = generateRandomSpawnVertices() + 10;
 
-    // make sure the spawn points are not on top of the snake
-    rect.forEach( item => {
-        if( item.x === posX ) posX = generateRandomSpawnVertices();
+    // Generate random spawn points and validate them
+    while (true){
+        checkPowerVertices(posX, posY);
 
-        if( item.y === posY ) posY = generateRandomSpawnVertices();
-    } )
+        // Check flags; break the loop if position is valid
+        const isValid = powerPositionFlag.every(flag => flag.posX && flag.posY);
+        if (isValid) break;
+
+        posX = generateRandomSpawnVertices() + 10;
+        posY = generateRandomSpawnVertices() + 10;
+    } 
 
     const newPower = {
         pos: { x: posX, y: posY },
-        isEated: false
+        isEaten: false
     };
-    // replace the head with the newPower
+    // replace with newPower
     power[0] = newPower
     // Draw the new power's position
     drawNewPower(newPower)
@@ -286,7 +308,7 @@ const updateScore = () =>{
 }
 
 function collision(){
-    power[0].isEated = true;
+    power[0].isEaten = true;
     updateScore();
     updateSize();
 }
@@ -432,7 +454,7 @@ function reset(){
     // reset the power spawn
     power = [{
         pos: { x: 20 , y: 90 },
-        isEated: false
+        isEaten: false
     }];
     // reset all directions
     resetDirX();
