@@ -1,4 +1,4 @@
-### Simple Snake Game
+# Simple Snake Game
 ## Powered with vanilla JavaScript
 
 ## Features:
@@ -9,8 +9,11 @@
 5. Collision detection and Game Over screen.
 6. Reset and Pause button for respective functionality
 
-# This was purely a "fun experiment" by me.
+### This was purely a "fun experiment" by me.
 - A tutorial was followed to a small extend. Unfortunately, I lost the link to the tutorial.
 
-### Screenshots:
+## Screenshots:
 
+![App Screenshot: Start Screen](./screenshots/snakeGame_SS_Start.png)
+![App Screenshot: Snake Moving](./screenshots/snakeGame_SS_MovingSnake.png)
+![App Screenshot: Game Over Screen](./screenshots/snakeGame_SS_GameOver.png)
