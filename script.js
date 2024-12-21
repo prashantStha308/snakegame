@@ -148,7 +148,7 @@ function drawNewPower(newPower){
 const powerPositionFlag = []; //Array to store if power has spawned on top of snake
 
 // Generate spawn points for power randomly
-const generateRandomSpawnVertices = ()=>( Math.random() * (300 - 10) );
+const generateRandomSpawnVertices = ()=>( Math.random() * (300 - 30) );
 
 function checkPowerVertices( posX , posY ){
     powerPositionFlag.length = 0;
