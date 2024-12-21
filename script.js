@@ -86,19 +86,32 @@ function drawGameOver() {
 
     // Draw the text in the center of the canvas
     goCtx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+
+    goCtx.font = 'bold 18px Arial'; // Update Font size
+    goCtx.fillText('Press Spacebar to reset', canvas.width / 2, ( canvas.height / 2 ) + 20 );
 }
 
-function gameOver(){
-    console.log('Game Over');
+function gameOver() {
     drawGameOver();
+    // clear all intervals stopping the snake's movement
     clearInterval(intervalID);
-    clearInterval(powerInterval)
+    clearInterval(powerInterval);
 
-    // Set all direction to be true, so that snake stops
+     // Set all direction to be true, so that snake stops
     moveDir.down = true;
     moveDir.up = true;
     moveDir.right = true;
     moveDir.left = true;
+
+    const handleKeyDown = (e) => {
+        // on clicking spacebar
+        if (e.code === 'Space') {
+            reset();
+            document.removeEventListener('keydown', handleKeyDown);
+        }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
 }
 
 function snakeCollision(){
@@ -107,7 +120,7 @@ function snakeCollision(){
 }
 
 function findSnakeCollision() {
-    const head = rect[0]; // Assuming rect is the array of snake segments
+    const head = rect[0]; //Keep first index as head
     
     for (let i = 1; i < rect.length; i++) {
         const segment = rect[i];
@@ -132,6 +145,7 @@ function drawNewPower(newPower){
     powerContext.strokeRect( newPower.pos.x , newPower.pos.y , 10 , 10 );
 }
 
+// Generate spawn points for power randomly
 const generateRandomSpawnVertices = ()=>( Math.random() * (300 - 10) );
 
 function drawPower(){
@@ -163,7 +177,7 @@ function drawPower(){
     drawNewPower(newPower)
 }
 
-function drawNewRect( newRect ){
+function drawNewSnake( newRect ){
     context.fillStyle = 'rgb(241, 94, 94)';
     context.strokeStyle = 'rgb(146, 37, 37)';
     context.fillRect( newRect.x , newRect.y , 10 , 10 );
@@ -171,7 +185,7 @@ function drawNewRect( newRect ){
 }
 
 function drawRect(){
-    rect.forEach(drawNewRect);
+    rect.forEach(drawNewSnake);
     findSnakeCollision();
 }
 
